@@ -1,0 +1,22 @@
+{
+  "shows": [
+    {
+      "name": "The Righteous Gemstones",
+      "tmdbLink": "https://sethetter.com",
+      "season": 1,
+      "newSeason": false
+    },
+    {
+      "name": "New Girl",
+      "tmdbLink": "https://sethetter.com",
+      "season": 7,
+      "newSeason": true
+    }
+  ],
+  "movies": [
+    {
+      "name": "Mandy",
+      "tmdbLink": "https://sethetter.com"
+    }
+  ]
+}
