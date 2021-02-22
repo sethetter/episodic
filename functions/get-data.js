@@ -6,6 +6,7 @@ const TMDB_API_KEY = process.env.TMDB_API_KEY;
 
 const SHOWS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=shows`;
 const MOVIES_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=movies`;
+// const DOCUMENTARIES_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=documentaries`;
 
 const tmdbUrl = (path) =>
   `https://api.themoviedb.org/3${path}?api_key=${TMDB_API_KEY}`;
@@ -17,13 +18,13 @@ exports.handler = async () => {
 
     const shows = await Promise.all(
       showRows.map(async ({ name, tmdb_id, last_season_watched }) => {
-        // TODO
+        const { latestSeason } = await tmdbApiShow(tmdb_id);
         return {
           name,
           tmdbId: tmdb_id,
           season: {
-            current: last_season_watched,
-            latest: 0,
+            current: parseInt(last_season_watched),
+            latest: latestSeason,
           },
         };
       })
@@ -64,7 +65,7 @@ async function tmdbApiShow(id) {
   const seasons = data.seasons.filter(
     (season) => new Date(season.air_date) <= new Date()
   );
-  const latestSeason = Math.max(seasons.map((s) => s.season_number));
+  const latestSeason = Math.max(...seasons.map((s) => s.season_number));
 
   return { latestSeason };
 }
