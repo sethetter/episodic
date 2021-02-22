@@ -16,16 +16,20 @@ exports.handler = async () => {
     const showRows = await getCsvData(SHOWS_URL);
     const movieRows = await getCsvData(MOVIES_URL);
 
-    const shows = await Promise.all(
-      showRows.map(async (show) => {
-        const resp = await fetch(tmdbUrl(`/tv/${show.tmdb_id}`));
-        if (!resp.ok) throw new Error("Response not ok");
+    const shows = (
+      await Promise.all(
+        showRows.map(async (show) => {
+          if (!show.tmdb_id) return null;
 
-        const tmdb_data = await resp.json();
-        const last_season_watched = parseInt(show.last_season_watched);
-        return { ...show, last_season_watched, tmdb_data };
-      })
-    );
+          const resp = await fetch(tmdbUrl(`/tv/${show.tmdb_id}`));
+          if (!resp.ok) throw new Error("Response not ok");
+
+          const tmdb_data = await resp.json();
+          const last_season_watched = parseInt(show.last_season_watched);
+          return { ...show, last_season_watched, tmdb_data };
+        })
+      )
+    ).filter((s) => s !== null);
 
     const movies = await Promise.all(
       movieRows.map(async (movie) => {
