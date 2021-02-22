@@ -17,23 +17,25 @@ exports.handler = async () => {
     const movieRows = await getCsvData(MOVIES_URL);
 
     const shows = await Promise.all(
-      showRows.map(async ({ name, tmdb_id, last_season_watched }) => {
-        const { latestSeason, nextEpisodeAirDate } = await tmdbApiShow(tmdb_id);
-        return {
-          name,
-          tmdbId: tmdb_id,
-          nextEpisodeAirDate,
-          season: {
-            current: parseInt(last_season_watched),
-            latest: latestSeason,
-          },
-        };
+      showRows.map(async (show) => {
+        const resp = await fetch(tmdbUrl(`/tv/${show.tmdb_id}`));
+        if (!resp.ok) throw new Error("Response not ok");
+
+        const tmdb_data = await resp.json();
+        const last_season_watched = parseInt(show.last_season_watched);
+        return { ...show, last_season_watched, tmdb_data };
       })
     );
 
     const movies = await Promise.all(
-      movieRows.map(async ({ name, tmdb_id, watched }) => {
-        return { name, tmdbId: tmdb_id, watched };
+      movieRows.map(async (movie) => {
+        if (!movie.tmdb_id || movie.tmdb_id === "") return movie;
+
+        const resp = await fetch(tmdbUrl(`/movie/${movie.tmdb_id}`));
+        if (!resp.ok) throw new Error("Response not ok");
+
+        const tmdb_data = await resp.json();
+        return { ...movie, tmdb_data };
       })
     );
 
@@ -56,18 +58,3 @@ async function getCsvData(url) {
   const data = await resp.text();
   return csvParse(data, { columns: true, skip_empty_lines: true });
 }
-
-async function tmdbApiShow(id) {
-  const resp = await fetch(tmdbUrl(`/tv/${id}`));
-  if (!resp.ok) throw new Error("Response not ok");
-  const data = await resp.json();
-
-  const latestSeason = Math.max(...data.seasons.map((s) => s.season_number));
-  const nextEpisodeAirDate = data.next_episode_to_air;
-
-  console.log(data.next_episode_to_air);
-
-  return { latestSeason, nextEpisodeAirDate };
-}
-
-async function tmdbApiMovie(id) {}
