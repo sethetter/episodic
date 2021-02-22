@@ -4,16 +4,26 @@ export interface AppData {
   movies: Movie[],
 }
 
+export interface Movie extends ApiMovie {}
+export interface Show extends ApiShow {}
+
 interface ApiResponse {
-  shows: Show[],
-  movies: Movie[],
+  shows: ApiShow[],
+  movies: ApiMovie[],
 }
 
-export interface Show {
+interface ApiShow {
   name: string;
   tmdb_id: string;
   last_season_watched: number;
   tmdb_data: TmdbShow;
+}
+
+interface ApiMovie {
+  name: string;
+  watched: string;
+  tmdb_id: string;
+  tmdb_data: TmdbMovie;
 }
 
 interface TmdbShow {
@@ -26,18 +36,11 @@ interface TmdbSeason {
   air_date: string;
 }
 
-export interface Movie {
-  name: string;
-  watched: string;
-  tmdb_id: string;
-  tmdb_data: TmdbMovie;
-}
-
 interface TmdbMovie {
 
 }
 
-export async function getData() {
+export async function getData(): Promise<AppData> {
   const resp = await fetch("/.netlify/functions/get-data");
   if (!resp.ok) throw new Error("Failed to fetch data");
   const data: ApiResponse =  await resp.json();

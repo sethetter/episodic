@@ -26,7 +26,7 @@ function App() {
     shows.map((show) => (
       <li key={show.tmdb_id}>
         {show.name}
-        {show.tmdb_data.next_episode_to_air && <span>NEW!</span>}
+        {show.tmdb_data.next_episode_to_air && <span>&nbsp;(in-progress)</span>}
       </li>
     ));
 
