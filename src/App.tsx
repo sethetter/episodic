@@ -1,41 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { AppData, Show, Movie, getData } from "./data";
 import "./App.css";
 
-interface Data {
-  shows: Show[],
-  movies: Movie[],
-}
-
-interface Show {
-  name: string;
-  tmdb_id: string;
-  last_season_watched: number;
-  tmdb_data: TmdbShow;
-}
-
-interface TmdbShow {
-  next_episode_to_air: string;
-  seasons: TmdbSeason[];
-}
-
-interface TmdbSeason {
-  season_number: number;
-  air_date: string;
-}
-
-interface Movie {
-  name: string;
-  watched: string;
-  tmdb_id: string;
-  tmdb_data: TmdbMovie;
-}
-
-interface TmdbMovie {
-
-}
-
 function App() {
-  const [data, setData] = useState<Data>({ shows: [], movies: [] });
+  const [data, setData] = useState<AppData>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -44,12 +12,7 @@ function App() {
       setError("");
       setLoading(true);
       try {
-        const resp = await fetch("/.netlify/functions/get-data");
-        if (!resp.ok) throw new Error("Failed to fetch data");
-
-        const respBody = await resp.json();
-        setData(respBody);
-
+        setData(await getData());
         setLoading(false);
         setError("");
       } catch (e) {
@@ -59,14 +22,7 @@ function App() {
     })();
   }, []);
 
-  const currentShows = data.shows.filter(
-    (show) => show.last_season_watched < Math.max(...show.tmdb_data.seasons.map(s => s.season_number))
-  );
-  const pastShows = data.shows.filter(
-    (show) => show.last_season_watched >= Math.max(...show.tmdb_data.seasons.map(s => s.season_number))
-  );
-
-  const showsFromData = (shows: Show[]) =>
+  const renderShows = (shows: Show[]) =>
     shows.map((show) => (
       <li key={show.tmdb_id}>
         {show.name}
@@ -92,15 +48,15 @@ function App() {
           <>
             <div>
               <h2>Shows To Watch</h2>
-              <ul>{showsFromData(currentShows)}</ul>
+              <ul>{renderShows(data!.currentShows)}</ul>
 
               <h2>Shows Watched</h2>
-              <ul>{showsFromData(pastShows)}</ul>
+              <ul>{renderShows(data!.pastShows)}</ul>
             </div>
 
             <div>
               <h2>Movies</h2>
-              <ul>{moviesFromData(data.movies)}</ul>
+              <ul>{moviesFromData(data!.movies)}</ul>
             </div>
           </>
         )}
