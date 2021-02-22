@@ -19,7 +19,7 @@ exports.handler = async () => {
     const shows = (
       await Promise.all(
         showRows.map(async (show) => {
-          if (!show.tmdb_id) return null;
+          if (!show.tmdb_id || show.hide === "true") return null;
 
           const resp = await fetch(tmdbUrl(`/tv/${show.tmdb_id}`));
           if (!resp.ok) throw new Error("Response not ok");
