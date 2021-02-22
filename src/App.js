@@ -25,20 +25,23 @@ function App() {
     }
   }, []);
 
-  function showsFromData(data) {
-    return data.shows.map((show) => {
-      const newSeason = show.season.current < show.season.latest;
-      return (
-        <li key={show.tmdbId}>
-          <span>{show.name}</span>
-          {newSeason && <span>&nbsp;(New!)</span>}
-        </li>
-      );
-    });
-  }
+  const currentShows = data.shows.filter(
+    (show) => show.season.current < show.season.latest
+  );
+  const pastShows = data.shows.filter(
+    (show) => show.season.current >= show.season.latest
+  );
 
-  function moviesFromData(data) {
-    return data.movies.map((movie) => <li key={movie.tmdbId}>{movie.name}</li>);
+  const showsFromData = (shows) =>
+    shows.map((show) => (
+      <li key={show.tmdbId}>
+        {show.name}
+        {show.nextEpisodeAirDate && <span>NEW!</span>}
+      </li>
+    ));
+
+  function moviesFromData(movies) {
+    return movies.map((movie) => <li key={movie.tmdbId}>{movie.name}</li>);
   }
 
   return (
@@ -54,13 +57,16 @@ function App() {
         ) : (
           <>
             <div>
-              <h2>Shows</h2>
-              <ul>{showsFromData(data)}</ul>
+              <h2>Shows To Watch</h2>
+              <ul>{showsFromData(currentShows)}</ul>
+
+              <h2>Shows Watched</h2>
+              <ul>{showsFromData(pastShows)}</ul>
             </div>
 
             <div>
               <h2>Movies</h2>
-              <ul>{moviesFromData(data)}</ul>
+              <ul>{moviesFromData(data.movies)}</ul>
             </div>
           </>
         )}

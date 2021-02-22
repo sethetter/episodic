@@ -18,10 +18,11 @@ exports.handler = async () => {
 
     const shows = await Promise.all(
       showRows.map(async ({ name, tmdb_id, last_season_watched }) => {
-        const { latestSeason } = await tmdbApiShow(tmdb_id);
+        const { latestSeason, nextEpisodeAirDate } = await tmdbApiShow(tmdb_id);
         return {
           name,
           tmdbId: tmdb_id,
+          nextEpisodeAirDate,
           season: {
             current: parseInt(last_season_watched),
             latest: latestSeason,
@@ -61,13 +62,12 @@ async function tmdbApiShow(id) {
   if (!resp.ok) throw new Error("Response not ok");
   const data = await resp.json();
 
-  // Filter out future seasons
-  const seasons = data.seasons.filter(
-    (season) => new Date(season.air_date) <= new Date()
-  );
-  const latestSeason = Math.max(...seasons.map((s) => s.season_number));
+  const latestSeason = Math.max(...data.seasons.map((s) => s.season_number));
+  const nextEpisodeAirDate = data.next_episode_to_air;
 
-  return { latestSeason };
+  console.log(data.next_episode_to_air);
+
+  return { latestSeason, nextEpisodeAirDate };
 }
 
 async function tmdbApiMovie(id) {}

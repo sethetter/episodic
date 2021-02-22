@@ -1,5 +1,8 @@
 [build]
   base = "./"
   functions = "functions/"
-  command = "npm run build --production"
+  command = "npm run build"
   publish = "build/"
+  
+[context.production]
+  command = "npm run build --production"
