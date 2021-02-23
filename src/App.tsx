@@ -25,13 +25,15 @@ function App() {
   const renderShows = (shows: Show[]) =>
     shows.map((show) => (
       <li key={show.tmdb_id}>
-        {show.name}
+        <a href={`https://themoviedb.org/tv/${show.tmdb_id}`} target="_blank">{show.name}</a>
         {show.tmdb_data.next_episode_to_air && <span>&nbsp;(in-progress)</span>}
       </li>
     ));
 
   function moviesFromData(movies: Movie[]) {
-    return movies.map((movie) => <li key={movie.tmdb_id}>{movie.name}</li>);
+    return movies.map((movie) => <li key={movie.tmdb_id}>
+      <a href={`https://themoviedb.org/movie/${movie.tmdb_id}`} target="_blank">{movie.name}</a>
+    </li>);
   }
 
   return (
