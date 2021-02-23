@@ -1,26 +1,9 @@
-import { useEffect, useState } from "react";
-import { AppData, Show, Movie, getData } from "./data";
+import { Show, Movie } from "./data";
+import { useData } from "./hooks/useData"
 import "./App.css";
 
 function App() {
-  const [data, setData] = useState<AppData>();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    (async () => {
-      setError("");
-      setLoading(true);
-      try {
-        setData(await getData());
-        setLoading(false);
-        setError("");
-      } catch (e) {
-        setLoading(false);
-        setError("Failed to fetch data");
-      }
-    })();
-  }, []);
+  const { loading, error, data } = useData();
 
   const renderShows = (shows: Show[]) =>
     shows.map((show) => (
@@ -30,7 +13,7 @@ function App() {
       </li>
     ));
 
-  function moviesFromData(movies: Movie[]) {
+  function renderMovies(movies: Movie[]) {
     return movies.map((movie) => <li key={movie.tmdb_id}>
       <a href={`https://themoviedb.org/movie/${movie.tmdb_id}`} target="_blank">{movie.name}</a>
     </li>);
@@ -58,7 +41,7 @@ function App() {
 
             <div>
               <h2>Movies</h2>
-              <ul>{moviesFromData(data!.movies)}</ul>
+              <ul>{renderMovies(data!.movies)}</ul>
             </div>
           </>
         )}
